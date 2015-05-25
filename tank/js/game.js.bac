@@ -1,0 +1,258 @@
+var KEY={
+	UP:38,
+	DOWN:40,
+	W:87,
+	S:83,
+	D:68,
+	A:65,
+	SPACE:32,
+};
+var MAX_BOX=20;
+var tankGame={};
+tankGame.playground={
+	width:parseInt($('.playground').css('width')),
+	height:parseInt($('.playground').css('height')),
+};
+tankGame.box={
+	width:parseInt($('.box').css('width')),
+	height:parseInt($('.box').css('height')),
+};
+tankGame.myTank={
+	width:parseInt($('#me').css('width')),
+	height:parseInt($('#me').css('height')),
+	top:parseInt($('#me').css('top')),
+	left:parseInt($('#me').css('left')),
+	direction:KEY.D,
+	alive:false,
+	speed:5,
+};
+tankGame.myBullet={
+	width:parseInt($('#myBullet').css('width')),
+	height:parseInt($('#myBullet').css('height')),
+	top:parseInt($('#myBullet').css('top')),
+	left:parseInt($('#myBullet').css('left')),
+	direction:KEY.D,
+	alive:false,
+	speed:20,
+};
+tankGame.pressedKeys=[];
+tankGame.boxSet=[];
+tankGame.otherTank=[];
+tankGame.otherBullet=[]
+
+function box(left,top,width,height,solid){
+	this.left=left;
+	this.top=top;
+	this.width=width;
+	this.height=height;
+	this.solid=solid;
+}
+
+$(function(){
+	tankGame.timer=setInterval(gameLoop,30);
+	tankGame.timer=setInterval(gameLoopLong,50);
+	$(document).keydown(function(e){
+		tankGame.pressedKeys[e.which]=true;
+	});
+	$(document).keyup(function(e){
+		tankGame.pressedKeys[e.which]=false;
+	});
+	
+	//initialize boxes
+	for (var i=0;i<MAX_BOX;i++){
+		var left=Math.round(Math.random()*24)*tankGame.box.width;
+		var top=Math.round(Math.random()*14)*tankGame.box.width;
+		while (
+			(left<tankGame.box.width*2||left>(tankGame.playground.width-tankGame.box.width*2))
+			&&(top<tankGame.box.width*2||top>(tankGame.playground.height-tankGame.box.width*2))
+		){
+			left=Math.round(Math.random()*24)*tankGame.box.width;
+			top=Math.round(Math.random()*14)*tankGame.box.width;
+		}		
+		tankGame.boxSet.push(new box(left,top,tankGame.box.width,tankGame.box.height,true));
+		$('#game').append("<div id='box"+i+"' class='box'></div>");
+		$('#box'+i).css({'left':left,'top':top});
+	}
+});
+
+function gameLoop(){
+	moveMyTanks();
+	//moveOtherTanks();
+	//checkHit();
+}
+
+function gameLoopLong(){
+	moveMyBullet();
+}
+
+function moveMyTanks(){
+	var top=tankGame.myTank.top;
+	var left=tankGame.myTank.left;
+	if(tankGame.pressedKeys[KEY.A]){
+		tankGame.myTank.direction=KEY.A;
+		for (var i=0;i<tankGame.boxSet.length;i++){
+			if (
+			(top>(tankGame.boxSet[i].top-tankGame.myTank.width))
+			&&(top<(tankGame.boxSet[i].top+tankGame.box.width))
+			&&((left-tankGame.box.width)==tankGame.boxSet[i].left)
+			){
+				$('#me').css('background','url(./img/tank_left.JPG)');
+				return;
+			}
+		}
+		if((left-tankGame.myTank.speed)>=0){
+			$('#me').css('left',left-tankGame.myTank.speed);
+			tankGame.myTank.left=left-tankGame.myTank.speed;
+		}
+		$('#me').css('background','url(./img/tank_left.JPG)');
+	}
+	if(tankGame.pressedKeys[KEY.D]){
+		tankGame.myTank.direction=KEY.D;
+		for (var i=0;i<tankGame.boxSet.length;i++){
+			if (
+			(top>(tankGame.boxSet[i].top-tankGame.myTank.width))
+			&&(top<(tankGame.boxSet[i].top+tankGame.box.width))
+			&&((left+tankGame.myTank.width)==tankGame.boxSet[i].left)
+			){
+				$('#me').css('background','url(./img/tank_right.JPG)');
+				return;
+			}
+		}
+		if((left+tankGame.myTank.speed+tankGame.myTank.width)<=tankGame.playground.width){
+			$('#me').css('left',left+tankGame.myTank.speed);
+			tankGame.myTank.left=left+tankGame.myTank.speed;
+		}
+		$('#me').css('background','url(./img/tank_right.JPG)');
+	}
+	if(tankGame.pressedKeys[KEY.W]){
+		tankGame.myTank.direction=KEY.W;
+		for (var i=0;i<tankGame.boxSet.length;i++){
+			if (
+			(left>(tankGame.boxSet[i].left-tankGame.myTank.width))
+			&&(left<(tankGame.boxSet[i].left+tankGame.box.width))
+			&&((top-tankGame.box.width)==tankGame.boxSet[i].top)
+			){
+				$('#me').css('background','url(./img/tank_up.JPG)');
+				return;
+			}
+		}
+		if((top-tankGame.myTank.speed)>=0){
+			$('#me').css('top',top-tankGame.myTank.speed);
+			tankGame.myTank.top=top-tankGame.myTank.speed;
+		}
+		$('#me').css('background','url(./img/tank_up.JPG)');
+	}
+	if(tankGame.pressedKeys[KEY.S]){
+		tankGame.myTank.direction=KEY.S;
+		for (var i=0;i<tankGame.boxSet.length;i++){
+			if (
+			(left>(tankGame.boxSet[i].left-tankGame.myTank.width))
+			&&(left<(tankGame.boxSet[i].left+tankGame.box.width))
+			&&((top+tankGame.myTank.width)==tankGame.boxSet[i].top)
+			){
+				$('#me').css('background','url(./img/tank_down.JPG)');
+				return;
+			}
+		}
+		if((top+tankGame.myTank.speed+tankGame.myTank.width)<=tankGame.playground.height){
+			$('#me').css('top',top+tankGame.myTank.speed);
+			tankGame.myTank.top=top+tankGame.myTank.speed;
+		}
+		$('#me').css('background','url(./img/tank_down.JPG)');
+	}
+	if(tankGame.pressedKeys[KEY.SPACE]){
+		if(tankGame.myBullet.alive==true){
+			return;
+		}else{
+			tankGame.myBullet.alive=true;
+			tankGame.myBullet.direction=tankGame.myTank.direction;
+			if(tankGame.myBullet.direction==KEY.A){
+				$('#myBullet').css({'left':left,
+									'top':top+tankGame.myTank.width/2,
+									'width':tankGame.myBullet.height,
+									'height':tankGame.myBullet.width,
+									})
+			}
+			if(tankGame.myBullet.direction==KEY.D){
+				$('#myBullet').css({'left':left+tankGame.myTank.width,
+									'top':top+tankGame.myTank.width/2,
+									'width':tankGame.myBullet.height,
+									'height':tankGame.myBullet.width,
+									})
+			}
+			if(tankGame.myBullet.direction==KEY.W){
+				$('#myBullet').css({'left':left+tankGame.myTank.width/2,
+									'top':top,
+									'width':tankGame.myBullet.width,
+									'height':tankGame.myBullet.height,
+									})
+			}
+			if(tankGame.myBullet.direction==KEY.S){
+				$('#myBullet').css({'left':left+tankGame.myTank.width/2,
+									'top':top+tankGame.myTank.width,
+									'width':tankGame.myBullet.width,
+									'height':tankGame.myBullet.height,
+									})
+			}
+		}
+	}
+}
+
+function moveMyBullet(){
+	if(tankGame.myBullet.alive==true){
+		var left=parseInt($('#myBullet').css('left'));
+		var top=parseInt($('#myBullet').css('top'));
+		if(tankGame.myBullet.direction==KEY.A){
+			$('#myBullet').css({'left':left-tankGame.myBullet.speed})
+		}
+		if(tankGame.myBullet.direction==KEY.D){
+			$('#myBullet').css({'left':left+tankGame.myBullet.speed})
+		}
+		if(tankGame.myBullet.direction==KEY.W){
+			$('#myBullet').css({'top':top-tankGame.myBullet.speed})
+		}
+		if(tankGame.myBullet.direction==KEY.S){
+			$('#myBullet').css({'top':top+tankGame.myBullet.speed})
+		}
+	}
+}
+
+function checkSingleCrash(run,sit){
+	if(run.direction==KEY.A){
+		if (
+			(run.top>(sit.top-run.width))
+			&&(run.top<(sit.top+run.width))
+			&&((run.left-sit.width)==sit.left)
+			){
+				return true;
+			}
+	}
+	if(run.direction==KEY.D){
+		if (
+			(run.top>(sit.top-run.width))
+			&&(run.top<(sit.top+sit.width))
+			&&((run.left+run.width)==sit.left)
+			){
+				return true;
+			}
+	}
+	if(run.direction==KEY.W){
+		if (
+			(run.left>(sit.left-run.width))
+			&&(run.left<(sit.left+run.width))
+			&&((run.top-sit.width)==run.top)
+			){
+				return true;
+			}
+	}
+	if(run.direction==KEY.S){
+		if (
+			(run.left>(sit.left-run.width))
+			&&(run.left<(sit.left+sit.width))
+			&&((run.top+run.width)==sit.top)
+			){
+				return true;
+			}
+	}
+	return false;
+}
