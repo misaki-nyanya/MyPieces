@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Customary 
+Description: A two-column, fixed-width design for 1024x768 screen resolutions.
+Version    : 1.0
+Released   : 20100103
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Customary  by Free CSS Templates</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<script src="js/jquery.min.js"></script>
+<script src="js/highcharts.js"></script>
+</head>
+<body>
+<div id="wrapper">
+	<div id="logo">
+		<h1>软件工程统计方法</h1>
+		<p><em> 自宅警备队离散刺拳与弧线左右勾拳动作分解测量统计研究所<a href="http://www.freecsstemplates.org/"></a></em></p>
+	</div>
+	<hr />
+	<!-- end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li><a href="/index" class="first">首页</a></li>
+                <li ><a href="/single">单品信息</a></li>
+				<li class="current_page_item"><a href="/cateView">分类查询</a></li>
+				<li><a href="/about">关于</a></li>
+				
+		  </ul>
+		</div>
+		<!-- end #menu -->
+		<div id="search">
+			<form method="get" action="/ASIN/">
+				<fieldset>
+				  <input type="text" name="s" id="search-text" size="15" />
+				<input type="submit" id="search-submit" value="ASIN Search" />
+				</fieldset>
+			</form>
+		</div>
+		<!-- end #search -->
+	</div>
+	<!-- end #header -->
+	<!-- end #header-wrapper -->
+	<div id="page">
+	<div id="page-bgtop">
+		<div id="content">
+			<div class="post">
+				<h2 class="title"><a href="#">分类信息({{search}})</a></h2>
+				<div class="entry">
+					<h3>整个分类价格关于时间的散点图</h3>
+                    <div id="ScatterForCatePrice" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>整个分类评论数关于时间的折线图</h3>
+                    <div id="LineForCateReview" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>整个分类的星级饼图</h3>
+                    <div id="PieForCateStar" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>整个分类商品平均评分与评论数的散点图</h3>
+                    <div id="StarAndReview" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>整个分类商品价格变化次数与评论数的散点图</h3>
+                    <div id="PriceChangeAndReview" style="min-width=800px;hight=400px" ></div>
+				</div>
+			</div>
+		</div>
+		<!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>分类一览</h2>
+					<ul>
+						{% for item in cate_all_display %}
+							<li id="cate"><a href="/CateCate/@{{ item }}">{{ item }}</a></li>
+						{% endfor %}
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	</div>
+	<!-- end #page -->
+	<div id="footer-bgcontent">
+	<div id="footer">
+		<p>Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	</div>
+	</div>
+	<!-- end #footer -->
+</div>
+</body>
+<script>
+
+function handleRawDate(p_raw)
+{
+	if(p_raw=="")
+		return [];
+	var t_series=eval("{"+p_raw+"}");
+	for(var t_i=0;t_i<t_series.length;t_i++)
+	{
+		var t_data=t_series[t_i].data;
+		for(var t_j=0;t_j<t_data.length;t_j++)
+		{
+			var t_point=t_data[t_j];
+			var t_date=t_point[0];
+			var t_day=t_date%100;
+			t_date=Math.floor(t_date/100);
+			var t_month=t_date%100;
+			t_date=Math.floor(t_date/100);
+			var t_year=t_date;
+			t_point[0]=Date.UTC(t_year,t_month-1,t_day);
+		}
+	}
+	return t_series;
+}
+
+{% autoescape off %}	
+			
+$(function ()
+{                                                                                  
+	$('#ScatterForCatePrice').highcharts(
+	{
+		chart:{type:'scatter'},                                                                                   
+		title:{text:"ScatterForCatePrice价格散点图"},
+		xAxis:
+		{
+			title:{text:"日期"},
+			type:"datetime",
+            labels:
+			{
+				formatter:function() 
+                {
+					return Highcharts.dateFormat('%Y-%m-%d',this.value);
+                }
+			}
+		},
+		yAxis:
+		{
+			title:{text:"价格"},
+            labels:
+			{
+				formatter:function()
+				{
+					return "$"+this.value;
+				}
+			},
+		},
+        tooltip:{xDateFormat:"%Y-%m-%d"},
+		series:handleRawDate("{{price}}")
+	});
+});
+
+$(function()
+{
+	$("#LineForCateReview").highcharts(
+	{
+		chart:{type:"spline"},
+        title:{text:"LineForCateReview评论数折线图"},
+		xAxis:
+		{
+			title:{text:"日期"},
+			type:"datetime",
+            labels: 
+			{
+				formatter:function() 
+                {
+					return Highcharts.dateFormat('%Y-%m-%d',this.value);
+                }
+			}
+        },
+        yAxis:
+		{
+			title:{text:"评论数"},
+			labels:
+			{
+				formatter:function()
+				{
+					return this.value+"次";
+				}
+			},
+		},
+        tooltip:{xDateFormat:"%Y-%m-%d"},
+       series:handleRawDate("[{data:{{LineForCateReview}},name:'评论数'}]")
+    });
+});
+
+$(function()
+{
+	$('#PieForCateStar').highcharts(
+	{
+		chart:{type:"pie"},
+		title:{text:"PieForCateStar星级饼图"},
+		plotOptions:
+		{
+			pie:
+			{
+				allowPointSelect:true,
+				cursor:"pointer",
+				showInLegend:true
+			}
+		},
+		series:[{name:"数量",data:{{starCount}}}]
+	});
+});				
+
+var g_star_map=["一","二","三","四","五"];
+
+$(function ()
+{                                                                                  
+	$('#StarAndReview').highcharts(
+	{
+		chart:{type:'scatter'},                                                                                   
+		title:{text:"StarAndReview散点图"},
+		xAxis:
+		{
+			title:{text:"平均星级"},
+			minTickInterval:1,
+			labels:
+			{
+				formatter:function()
+				{
+					return g_star_map[this.value-1]+"平均星级";
+				}
+			},
+		},
+		yAxis:
+		{
+			title:{text:"评论数"},
+            labels:
+			{
+				formatter:function()
+				{
+					return this.value+"次";
+				}
+			},
+		},
+		tooltip:
+		{
+			headerFormat:'<b>{series.name}</b><br>',
+			pointFormat:"平均星级：{point.x}颗,评论：{point.y}次"
+		},
+		series:[{name:"平均星级-评论数量",data:{{avgStarAndReview}}}]
+	});
+});
+
+$(function ()
+{                                                                               
+	$('#PriceChangeAndReview').highcharts(
+	{
+		chart:{type:'scatter'},                                                                                   
+		title:{text:"PriceChangeAndReview散点图"},
+		xAxis:
+		{
+			title:{text:"报价次数"},
+			minTickInterval:1,
+			labels:
+			{
+				formatter:function()
+				{
+					return this.value+"次";
+				}
+			},
+		},
+		yAxis:
+		{
+			title:{text:"评论数"},
+            labels:
+			{
+				formatter:function()
+				{
+					return this.value+"次";
+				}
+			},
+		},
+		tooltip:
+		{
+			headerFormat:'<b>{series.name}</b><br>',
+			pointFormat:"报价次数：{point.x}次,评论：{point.y}次"
+		},
+		series:[{name:"报价次数-评论数",data:{{priceChangeByReview}}}]
+	});
+});
+
+			{% endautoescape %}
+</script>
+</html>
