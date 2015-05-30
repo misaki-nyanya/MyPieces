@@ -1,0 +1,4 @@
+c0782  aaaaaaaa  19/19:00-21:00  2  uuuuuuuuuuuu    
+T  12453  
+Property  1  
+TA  121250323  
