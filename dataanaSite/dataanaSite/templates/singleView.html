@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Customary 
+Description: A two-column, fixed-width design for 1024x768 screen resolutions.
+Version    : 1.0
+Released   : 20100103
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Customary  by Free CSS Templates</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<script src="js/jquery.min.js"></script>
+<script src="js/highcharts.js"></script>
+<script>
+	var ANSI="{{search}}";
+</script>
+</head>
+<body>
+<div id="wrapper">
+	<div id="logo">
+		<h1>软件工程统计方法</h1>
+		<p><em> 自宅警备队离散刺拳与弧线左右勾拳动作分解测量统计研究所<a href="http://www.freecsstemplates.org/"></a></em></p>
+	</div>
+	<hr />
+	<!-- end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li><a href="/index" class="first">首页</a></li>
+                <li class="current_page_item"><a href="/single">单品信息</a></li>
+				<li ><a href="/cateView">分类查询</a></li>
+				<li><a href="/about">关于</a></li>
+				
+		  </ul>
+		</div>
+		<!-- end #menu -->
+		<div id="search">
+			<form method="get" action="/ASIN/">
+				<fieldset>
+				  <input type="text" name="s" id="search-text" size="15" />
+				<input type="submit" id="search-submit" value="ASIN Search" />
+				</fieldset>
+			</form>
+		</div>
+		<!-- end #search -->
+	</div>
+	<!-- end #header -->
+	<!-- end #header-wrapper -->
+	<div id="page">
+	<div id="page-bgtop">
+		<div id="content">
+			<div class="post">
+				<h2 class="title"><a href="#">单品信息(ASIN:{{search}})</a></h2>
+            
+				<div class="entry">
+					<h3>价格关于时间的折线图</h3>
+                    <div id="PriceByOffer" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>评论数关于时间的折线图</h3>
+                    <div id="ReviewCountByMonth" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>评论数累加关于时间的折线图</h3>
+                    <div id="TotalReviews" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>星级评定数的柱状图</h3>
+                    <div id="Star" style="min-width=800px;hight=400px" ></div>
+				</div>
+                <div class="entry">
+					<h3>价格和评论数关于时间的双y轴折线图</h3>
+                    <div id="PriceByReview" style="min-width=800px;hight=400px" ></div>
+				</div>
+                
+			</div>
+		</div>
+		<!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>分类一览</h2>
+					<ul>
+						{% for item in cate_all_display %}
+							<li id="cate"><a href="/SingleCate/@{{ item }}?page=1">{{ item }}</a></li>
+						{% endfor %}
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	</div>
+	<!-- end #page -->
+	<div id="footer-bgcontent">
+	<div id="footer">
+		<p>Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	</div>
+	</div>
+	<!-- end #footer -->
+</div>
+</body>
+<script>
+function handleRawDate(p_raw)
+{
+	if(p_raw=="")
+		return [];
+	var t_series=eval("{"+p_raw+"}");
+	for(var t_i=0;t_i<t_series.length;t_i++)
+	{
+		var t_data=t_series[t_i].data;
+		for(var t_j=0;t_j<t_data.length;t_j++)
+		{
+			var t_point=t_data[t_j];
+			var t_date=t_point[0];
+			var t_day=t_date%100;
+			t_date=Math.floor(t_date/100);
+			var t_month=t_date%100;
+			t_date=Math.floor(t_date/100);
+			var t_year=t_date;
+			t_point[0]=Date.UTC(t_year,t_month-1,t_day);
+		}
+	}
+	return t_series;
+}
+
+			{% autoescape off %}
+$(function()
+{
+	$("#PriceByOffer").highcharts(
+	{
+		chart:{type:"spline"},
+        title:{text:"Price/Offer折线图价格/日期"},
+		xAxis:
+		{
+			title:{text:"日期"},
+			type: "datetime",
+            labels: 
+			{
+				formatter:function() 
+                {
+					return Highcharts.dateFormat('%Y-%m-%d',this.value);
+                }
+			}
+        },
+        yAxis:
+		{
+			title:{text:"价格"},
+            labels:
+			{
+				formatter:function()
+				{
+					return "$"+this.value;
+				}
+			},
+		},
+        tooltip:{xDateFormat:"%Y-%m-%d"},
+        series:handleRawDate("{{priceByOffer}}")
+    });
+});
+
+$(function()
+{
+	$("#ReviewCountByMonth").highcharts(
+	{
+		chart:{type:"spline"},
+        title:{text:"ReviewCount折线图评论数/日期"},
+		xAxis:
+		{
+			title:{text:"日期"},
+			type: "datetime",
+            labels: 
+			{
+				formatter:function() 
+                {
+					return Highcharts.dateFormat('%Y-%m-%d',this.value);
+                }
+			}
+        },
+        yAxis:
+		{
+			title:{text:"评论数"},
+			labels:
+			{
+				formatter:function()
+				{
+					return this.value+"次";
+				}
+			},
+		},
+        tooltip:{xDateFormat:"%Y-%m-%d"},
+        series:handleRawDate("[{data:{{reviewByMonth}},name:'评论数'}]")
+    });
+});
+
+$(function()
+{
+	$("#TotalReviews").highcharts(
+	{
+		chart:{type:"spline"},
+        title:{text:"TotalReviews折线图,评论数累加/日期"},
+		xAxis:
+		{
+			title:{text:"日期"},
+			type: "datetime",
+            labels: 
+			{
+				formatter:function() 
+                {
+					return Highcharts.dateFormat('%Y-%m-%d',this.value);
+                }
+			}
+        },
+        yAxis:
+		{
+			title:{text:"累计评论数"},
+			labels:
+			{
+				formatter:function()
+				{
+					return this.value+"次";
+				}
+			},
+		},
+        tooltip:{xDateFormat:"%Y-%m-%d"},
+        series:handleRawDate("[{data:{{reviewCulByMonth}},name:'累计评论数'}]")
+    });
+});
+
+$(function()
+{
+	$("#Star").highcharts(
+	{
+		chart:{type:"column"},
+		title:{text:"Stars柱状图1-5星数量"},
+		xAxis:
+		{
+			title:{text:"星级"},
+			categories:["1","2","3","4","5"]
+		},
+		yAxis:{title:{text:"数量"}},
+		series:[{name:"数量",data:{{star}}}]
+	});
+});
+
+$(function()
+{
+	$("#PriceByReview").highcharts(
+	{
+		chart:{type:"spline"},
+		title:{text:"Price/Review双y轴x轴时间,折线"},
+		xAxis:
+		{
+			title:{text:"日期"},
+			type: "datetime",
+            labels: 
+			{
+				formatter:function() 
+                {
+					return Highcharts.dateFormat('%Y-%m-%d',this.value);
+                }
+			}
+		},
+		yAxis:
+		[
+			{
+				title:
+				{
+					text:"价格",
+					style:{color:"#89A54E"}
+				},
+				labels:
+				{
+					format:"${value}",
+					style:{color:"#89A54E"}
+				}
+			},
+			{
+				title:
+				{
+					text:"评论数",
+					style:{color:"#4572A7"}
+				},
+				labels:
+				{
+					format:"{value}次",
+					style:{color:"#4572A7"}
+            	},
+				opposite:true
+			}
+		],
+		series:handleRawDate("{{priceByReview}}")
+	});
+});
+		{% endautoescape %}
+</script>
+</html>
